@@ -3,7 +3,7 @@ use std::fmt::{self, Debug, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Deref, Index};
 
-use crate::{Freezable, Frozen};
+use crate::{Freezable, Frozen, Unfreezable};
 
 impl<T: Freezable + ?Sized> Debug for Frozen<T>
 where
@@ -95,5 +95,19 @@ where
 {
     fn default() -> Self {
         T::default().freeze()
+    }
+}
+
+impl<T: Freezable + ?Sized> Freezable for Frozen<T> {
+    type Frozen = T::Frozen;
+
+    fn freeze(self) -> Frozen<Self> {
+        Frozen(self.0)
+    }
+}
+
+impl<T: Freezable + ?Sized> Unfreezable<Frozen<T>> for Frozen<T> {
+    fn thaw(wrapped: <Frozen<T> as Freezable>::Frozen) -> Self {
+        Frozen(wrapped)
     }
 }
