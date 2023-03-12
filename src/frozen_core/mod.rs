@@ -1,4 +1,5 @@
 use core::time::Duration;
+use core::ops::Deref;
 
 use crate::{impl_self_freezable, Freezable, Frozen, Unfreezable};
 macro_rules! tuple_impl {
@@ -88,3 +89,51 @@ impl Freezable for Duration {
         Frozen(self)
     }
 }
+impl Unfreezable<Duration> for Duration {
+    fn thaw(wrapped: <Duration as Freezable>::Frozen) -> Self {
+        wrapped
+    }
+}
+
+// Freezable bound is used to enforce that the type does not contain `UnsafeCell`.
+impl<T: Freezable> Freezable for &T {
+    type Frozen = Self;
+
+    fn freeze(self) -> Frozen<Self> {
+        Frozen(self)
+    }
+}
+impl<'a, T: Freezable> Unfreezable<&'a T> for &'a T {
+    fn thaw(wrapped: <&'a T as Freezable>::Frozen) -> Self {
+        wrapped
+    }
+}
+
+#[derive(Debug)]
+pub struct FrozenMutRef<'a, T: Freezable>(&'a mut T);
+impl<'a, T: Freezable> Deref for FrozenMutRef<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        self.0
+    }
+}
+
+impl<'a, T: Freezable> Freezable for &'a mut T {
+    type Frozen = FrozenMutRef<'a, T>;
+
+    fn freeze(self) -> Frozen<Self> {
+        Frozen(FrozenMutRef(self))
+    }
+}
+impl<'a, T: Freezable> Unfreezable<&'a mut T> for &'a mut T {
+    fn thaw(FrozenMutRef(wrapped): <&'a mut T as Freezable>::Frozen) -> Self {
+        wrapped
+    }
+}
+impl<'a, T: Freezable> Unfreezable<&'a mut T> for &'a T {
+    fn thaw(FrozenMutRef(wrapped): <&'a mut T as Freezable>::Frozen) -> Self {
+        wrapped
+    }
+}
+
