@@ -1,6 +1,13 @@
 [package]
+authors = ["Starwort"]
+description = "A library for immutable data."
+documentation = "https://docs.rs/freezable"
 edition = "2021"
+homepage = "https://github.com/starwort/freezable"
+keywords = ["freeze", "thaw", "immutable", "data", "utility"]
+license = "MIT"
 name = "freezable"
+repository = "https://github.com/starwort/freezable"
 version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
