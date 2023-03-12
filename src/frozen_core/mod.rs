@@ -96,22 +96,22 @@ impl Unfreezable<Duration> for Duration {
 }
 
 // Freezable bound is used to enforce that the type does not contain `UnsafeCell`.
-impl<T: Freezable> Freezable for &T {
+impl<T: Freezable + ?Sized> Freezable for &T {
     type Frozen = Self;
 
     fn freeze(self) -> Frozen<Self> {
         Frozen(self)
     }
 }
-impl<'a, T: Freezable> Unfreezable<&'a T> for &'a T {
+impl<'a, T: Freezable + ?Sized> Unfreezable<&'a T> for &'a T {
     fn thaw(wrapped: <&'a T as Freezable>::Frozen) -> Self {
         wrapped
     }
 }
 
 #[derive(Debug)]
-pub struct FrozenMutRef<'a, T: Freezable>(&'a mut T);
-impl<'a, T: Freezable> Deref for FrozenMutRef<'a, T> {
+pub struct FrozenMutRef<'a, T: Freezable + ?Sized>(&'a mut T);
+impl<'a, T: Freezable + ?Sized> Deref for FrozenMutRef<'a, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -119,19 +119,19 @@ impl<'a, T: Freezable> Deref for FrozenMutRef<'a, T> {
     }
 }
 
-impl<'a, T: Freezable> Freezable for &'a mut T {
+impl<'a, T: Freezable + ?Sized> Freezable for &'a mut T {
     type Frozen = FrozenMutRef<'a, T>;
 
     fn freeze(self) -> Frozen<Self> {
         Frozen(FrozenMutRef(self))
     }
 }
-impl<'a, T: Freezable> Unfreezable<&'a mut T> for &'a mut T {
+impl<'a, T: Freezable + ?Sized> Unfreezable<&'a mut T> for &'a mut T {
     fn thaw(FrozenMutRef(wrapped): <&'a mut T as Freezable>::Frozen) -> Self {
         wrapped
     }
 }
-impl<'a, T: Freezable> Unfreezable<&'a mut T> for &'a T {
+impl<'a, T: Freezable + ?Sized> Unfreezable<&'a mut T> for &'a T {
     fn thaw(FrozenMutRef(wrapped): <&'a mut T as Freezable>::Frozen) -> Self {
         wrapped
     }
