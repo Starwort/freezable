@@ -6,7 +6,7 @@ use std::ops::Deref;
 use crate::{Freezable, Frozen, Unfreezable};
 
 #[repr(transparent)]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct FrozenMap<K: Hash + Eq, V, S: BuildHasher = RandomState>(HashMap<K, V, S>);
 impl<
         K: Freezable,
@@ -23,6 +23,13 @@ where
     ) -> HashMap<RK, RV, S> {
         val.into_iter().map(|(k, v)| (k.thaw(), v.thaw())).collect()
     }
+}
+impl<K: Hash + Eq, V: PartialEq, S: BuildHasher> PartialEq for FrozenMap<K, V, S> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+impl<K: Hash + Eq, V: Eq, S: BuildHasher> Eq for FrozenMap<K, V, S> {
 }
 impl<K: Hash + Eq, V, S: BuildHasher> Deref for FrozenMap<K, V, S> {
     type Target = HashMap<K, V, S>;

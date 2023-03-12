@@ -6,7 +6,7 @@ use std::ops::Deref;
 use crate::{Freezable, Frozen, Unfreezable};
 
 #[repr(transparent)]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct FrozenSet<T: Hash + Eq, S: BuildHasher = RandomState>(HashSet<T, S>);
 impl<T: Freezable, RK: Hash + Eq + Unfreezable<T>, S: BuildHasher + Default>
     Unfreezable<HashSet<T, S>> for HashSet<RK, S>
@@ -23,6 +23,13 @@ impl<K: Hash + Eq, S: BuildHasher> Deref for FrozenSet<K, S> {
     fn deref(&self) -> &Self::Target {
         &self.0
     }
+}
+impl<T: Hash + Eq, S: BuildHasher> PartialEq for FrozenSet<T, S> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+impl<T: Hash + Eq, S: BuildHasher> Eq for FrozenSet<T, S> {
 }
 #[allow(clippy::zero_sized_map_values)]
 impl<T: Freezable, RK: Hash + Eq + Unfreezable<T>, S: BuildHasher + Default>
