@@ -1,3 +1,5 @@
+use core::borrow::Borrow;
+use core::ops::Index;
 use std::collections::hash_map::{DefaultHasher, IntoIter, Iter, RandomState};
 use std::collections::{HashMap, HashSet};
 use std::hash::{BuildHasher, Hash, Hasher};
@@ -22,6 +24,17 @@ where
         FrozenMap(val): <HashMap<K, V, S> as Freezable>::Frozen,
     ) -> HashMap<RK, RV, S> {
         val.into_iter().map(|(k, v)| (k.thaw(), v.thaw())).collect()
+    }
+}
+impl<K: Hash + Eq, V, S: BuildHasher, B: Freezable> Index<B> for FrozenMap<K, V, S>
+where
+    K: Borrow<Frozen<B>>,
+    B::Frozen: Hash + Eq,
+{
+    type Output = V;
+
+    fn index(&self, index: B) -> &Self::Output {
+        self.0.index(&index.freeze())
     }
 }
 impl<K: Hash + Eq, V: PartialEq, S: BuildHasher> PartialEq for FrozenMap<K, V, S> {

@@ -51,7 +51,7 @@ unfreezable_impl!(Vec<T>, T);
 freezable_impl!(T => VecDeque<T>, T);
 unfreezable_impl!(VecDeque<T>, T);
 freezable_impl!(K, V => BTreeMap<K, V>, (K, V));
-unfreezable_impl!(BTreeMap<K, V>, K, V | K: Ord, V: Ord);
+unfreezable_impl!(BTreeMap<K, V>, K, V | K: Ord);
 freezable_impl!(T => BTreeSet<T>, T);
 unfreezable_impl!(BTreeSet<T>, T | T: Ord);
 freezable_impl!(T => LinkedList<T>, T);
