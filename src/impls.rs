@@ -252,10 +252,15 @@ pub trait FreezableIteratorExt<T: Freezable>: Iterator<Item = T> + Sized {
     }
 }
 
+impl<T: Freezable, I: Iterator<Item = T>> FreezableIteratorExt<T> for I {
+}
+
 pub trait UnfreezableIteratorExt<T: Freezable>:
     Iterator<Item = Frozen<T>> + Sized
 {
     fn thawed<U: Unfreezable<T>>(self) -> Map<Self, fn(Frozen<T>) -> U> {
         self.map(Frozen::thaw)
     }
+}
+impl<T: Freezable, I: Iterator<Item = Frozen<T>>> UnfreezableIteratorExt<T> for I {
 }
