@@ -1,4 +1,4 @@
-use std::collections::hash_map::{DefaultHasher, RandomState};
+use std::collections::hash_map::{DefaultHasher, IntoIter, Iter, RandomState};
 use std::collections::{HashMap, HashSet};
 use std::hash::{BuildHasher, Hash, Hasher};
 use std::ops::Deref;
@@ -30,6 +30,19 @@ impl<K: Hash + Eq, V: PartialEq, S: BuildHasher> PartialEq for FrozenMap<K, V, S
     }
 }
 impl<K: Hash + Eq, V: Eq, S: BuildHasher> Eq for FrozenMap<K, V, S> {
+}
+impl<K: Hash + Eq, V, S: BuildHasher> IntoIterator for FrozenMap<K, V, S> {
+    type IntoIter = IntoIter<K, V>;
+    type Item = (K, V);
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+impl<K: Hash + Eq, V, S: BuildHasher> FrozenMap<K, V, S> {
+    pub fn iter(&self) -> Iter<K, V> {
+        self.0.iter()
+    }
 }
 impl<K: Hash + Eq, V, S: BuildHasher> Deref for FrozenMap<K, V, S> {
     type Target = HashMap<K, V, S>;

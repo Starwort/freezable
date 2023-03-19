@@ -1,4 +1,5 @@
 use std::collections::hash_map::{DefaultHasher, RandomState};
+use std::collections::hash_set::{IntoIter, Iter};
 use std::collections::{HashMap, HashSet};
 use std::hash::{BuildHasher, Hash, Hasher};
 use std::ops::Deref;
@@ -30,6 +31,19 @@ impl<T: Hash + Eq, S: BuildHasher> PartialEq for FrozenSet<T, S> {
     }
 }
 impl<T: Hash + Eq, S: BuildHasher> Eq for FrozenSet<T, S> {
+}
+impl<K: Hash + Eq, S: BuildHasher> IntoIterator for FrozenSet<K, S> {
+    type IntoIter = IntoIter<K>;
+    type Item = K;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+impl<K: Hash + Eq, S: BuildHasher> FrozenSet<K, S> {
+    pub fn iter(&self) -> Iter<K> {
+        self.0.iter()
+    }
 }
 #[allow(clippy::zero_sized_map_values)]
 impl<T: Freezable, RK: Hash + Eq + Unfreezable<T>, S: BuildHasher + Default>

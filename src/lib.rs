@@ -1,8 +1,11 @@
-#[cfg_attr(not(feature = "std"), no_std)]
+#![feature(proc_macro_hygiene)]
+#![cfg_attr(not(feature = "std"), no_std)]
 mod frozen_core;
 #[cfg(feature = "std")]
 mod frozen_std;
 mod impls;
+pub mod prelude;
+pub use impls::{FreezableIteratorExt, UnfreezableIteratorExt};
 
 /// The primary trait for the `freezable` crate.
 ///
